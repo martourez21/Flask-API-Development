@@ -31,6 +31,10 @@ def create_app(test_config=None):
             "Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS"
         )
         return response
+    
+    @app.route('/')
+    def index():
+        return '<h3>hello there!!</h3>'
 
     # @TODO: Write a route that retrivies all books, paginated.
     #         You can use the constant above to paginate by eight books.
@@ -38,6 +42,22 @@ def create_app(test_config=None):
     #         update the frontend to handle additional books in the styling and pagination
     #         Response body keys: 'success', 'books' and 'total_books'
     # TEST: When completed, the webpage will display books including title, author, and rating shown as stars
+    @app.route('/books', methods=['GET'])
+    def get_all_books():
+        #implementing pagination to retrieve books from the database
+        page = request.args.get('page', 1, type=1)
+        start = (page-1) * BOOKS_PER_SHELF
+        end = start + BOOKS_PER_SHELF
+
+        #Retrieve all books from the database
+        books = Book.query.all()
+            
+        formatted_books = [book.format() for book in books]
+        return jsonify({
+            'success': True,
+            'books': formatted_books[start:end],
+            'total_books':len(formatted_books)
+        })
 
     # @TODO: Write a route that will update a single book's rating.
     #         It should only be able to update the rating, not the entire representation
