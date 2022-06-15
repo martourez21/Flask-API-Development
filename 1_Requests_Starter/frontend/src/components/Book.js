@@ -6,7 +6,7 @@ const starArray = [5,4,3,2,1]
 
 class Book extends Component {
   createStars(){
-    let {id, rating, deleteBook} = this.props;
+    let {id, rating, deleteBook, changeRating} = this.props;
 
     return ( 
       <div className="rating">
@@ -18,6 +18,7 @@ class Book extends Component {
           />
         ))}
         <div className="delete" onClick={() => {deleteBook(id)}} />
+        <div className="rating" onClick={() => {changeRating(id)}} />
       </div>
     )
   }
