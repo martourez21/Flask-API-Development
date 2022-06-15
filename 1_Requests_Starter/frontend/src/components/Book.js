@@ -18,7 +18,6 @@ class Book extends Component {
           />
         ))}
         <div className="delete" onClick={() => {deleteBook(id)}} />
-        <div className="rating" onClick={() => {changeRating(id)}} />
       </div>
     )
   }
