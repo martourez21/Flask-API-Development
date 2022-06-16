@@ -1,12 +1,23 @@
 import os
 from flask import Flask, request, abort, jsonify
-from flask_sqlalchemy import SQLAlchemy  # , or_
+from flask_sqlalchemy import Pagination, SQLAlchemy  # , or_
 from flask_cors import CORS
 import random
 
 from models import setup_db, Book
 
 BOOKS_PER_SHELF = 8
+
+def paginate_books(request, selection):
+    page = request.args.get('page', 1, type=int)
+    start = (page - 1) * BOOKS_PER_SHELF
+    end = start + BOOKS_PER_SHELF
+
+    books = [book.format() for book in selection]
+    current_books = books[start:end]
+
+    return current_books
+
 
 # @TODO: General Instructions
 #   - As you're creating endpoints, define them and then search for 'TODO' within the frontend to update the endpoints there.
@@ -44,19 +55,15 @@ def create_app(test_config=None):
     # TEST: When completed, the webpage will display books including title, author, and rating shown as stars
     @app.route('/books', methods=['GET'])
     def get_all_books():
-        #implementing pagination to retrieve books from the database
-        page = request.args.get('page', 1, type=1)
-        start = (page-1) * BOOKS_PER_SHELF
-        end = start + BOOKS_PER_SHELF
-
-        #Retrieve all books from the database
-        books = Book.query.all()
-            
-        formatted_books = [book.format() for book in books]
+        selection = Book.query.order_by(Book.id).all()
+        current_books = paginate_books(request, selection)
+        
+        if len(current_books)==0:
+            abort(404)
         return jsonify({
             'success': True,
-            'books': formatted_books[start:end],
-            'total_books':len(formatted_books)
+            'books': current_books,
+            'total_books':len(Book.query.all())
         })
 
     # @TODO: Write a route that will update a single book's rating.
